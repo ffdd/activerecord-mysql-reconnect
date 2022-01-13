@@ -1,9 +1,43 @@
+# 이 Fork 에 대한 설명
+
+* ⚠️ [winebarrel/activerecord-mysql-reconnect](https://github.com/winebarrel/activerecord-mysql-reconnect) 이 Archive 상태라서, 지원 타겟 범위를 줄여서 포크합니다. 
+* 지원타겟 : mysql8 , ActiveRecord ~> 6.1
+
+## 빌드와 배포
+
+### 인증
+
+* GH_TOKEN 은 https://github.com/settings/tokens 에서 획득한다.
+
+```shell
+# bundle config https://rubygems.pkg.github.com/ffdd USERNAME:TOKEN
+# VERSION 은 lib/activerecord/mysql/reconnect/version.rb 를 따른다.
+
+echo ":github: Bearer ${GH_TOKEN}" >> ~/.gem/credentials
+chmod 600 ~/.gem/credentials
+```
+
+### 실행
+
+```shell
+rake build 
+gem push --key github --host https://rubygems.pkg.github.com/ffdd pkg/activerecord-mysql-reconnect-${VERSION}.gem
+```
+
+## Usage
+
+```ruby
+gem "activerecord-mysql-reconnect", source: "https://rubygems.pkg.github.com/ffdd"
+```
+
+
+
 # activerecord-mysql-reconnect
+## Introduction
 
 It is the library to reconnect automatically when ActiveRecord is disconnected from MySQL.
 
-[![Gem Version](https://badge.fury.io/rb/activerecord-mysql-reconnect.svg)](http://badge.fury.io/rb/activerecord-mysql-reconnect)
-[![Build Status](https://travis-ci.org/winebarrel/activerecord-mysql-reconnect.svg?branch=master)](https://travis-ci.org/winebarrel/activerecord-mysql-reconnect)
+[//]: # ([![Gem Version]&#40;https://badge.fury.io/rb/activerecord-mysql-reconnect.svg&#41;]&#40;http://badge.fury.io/rb/activerecord-mysql-reconnect&#41;)
 
 ## Installation
 
@@ -118,7 +152,7 @@ It requires the following:
 
 ```sh
 bundle install
-bundle exec appraisal install
-bundle exec appraisal activerecord-4.2 rake
-bundle exec appraisal activerecord-5.0 rake
+
+bundle exec appraisal activerecord-6.1 rake
+bundle exec appraisal activerecord-7.0 rake
 ```

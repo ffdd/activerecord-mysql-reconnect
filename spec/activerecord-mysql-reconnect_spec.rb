@@ -7,8 +7,7 @@ describe 'activerecord-mysql-reconnect' do
       :database => 'employees',
       :port     => 14407,
     )
-
-    ActiveRecord::Base.logger = Logger.new($stdout)
+ActiveRecord::Base.logger = Logger.new($stdout)
     ActiveRecord::Base.logger.formatter = proc {|_, _, _, message| "#{message}\n" }
 
     if ENV['DEBUG'] == '1'

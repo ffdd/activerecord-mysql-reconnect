@@ -18,4 +18,8 @@ tmp
 test.rb
 *.bak
 *.swp
-/gemfiles/*.lock
+gemfiles
+.envrc.local
+.issue_title
+.idea
+.starship.toml
