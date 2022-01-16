@@ -1,3 +1,5 @@
+require 'retriable'
+
 module Activerecord::Mysql::Reconnect::ExecuteWithReconnect
   def execute(sql, name = nil)
     retryable(sql, name) do |sql_names|
@@ -15,6 +17,8 @@ end
 class ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter
   prepend Activerecord::Mysql::Reconnect::ExecuteWithReconnect
 
+  FAILOVER_RETRY_INTERVALS = [0.2, 0.5, 1.0, 2.0, 3.0, 3.0, 3.0].freeze
+
   private
 
   def retryable(sql, name, &block)
@@ -23,7 +27,9 @@ class ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter
     transaction = current_transaction
 
     if sql =~ /\ABEGIN\z/i and transaction.is_a?(ActiveRecord::ConnectionAdapters::NullTransaction)
-      def transaction.state; nil; end
+      def transaction.state
+        nil;
+      end
     end
 
     Activerecord::Mysql::Reconnect.retryable(
@@ -33,8 +39,10 @@ class ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter
       :on_error => proc {
         unless block_with_reconnect
           block_with_reconnect = proc do |i|
-            reconnect_without_retry!
-            block.call(i)
+            ::Retriable.retriable(intervals: FAILOVER_RETRY_INTERVALS) do
+              reconnect_without_retry!
+              block.call(i)
+            end
           end
         end
       },
