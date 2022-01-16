@@ -1,3 +1,7 @@
+require 'bundler/setup'
+Bundler.setup
+Bundler.require(:development, :test)
+
 require 'mysql2_ext'
 require 'mysql_helper'
 require 'activerecord/mysql/reconnect'
@@ -34,6 +38,10 @@ end
 include SpecHelper
 
 RSpec.configure do |config|
+  config.expect_with :rspec do |c|
+    c.syntax = %i[should expect]
+  end
+
   config.before(:all) do
     MysqlServer.stop
   end
