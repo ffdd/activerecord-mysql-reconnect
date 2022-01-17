@@ -104,30 +104,30 @@ describe 'activerecord-mysql-reconnect' do
     'Unknown MySQL server host', # For DNS blips
     "Lost connection to MySQL server at 'reading initial communication packet'",
   ].each do |errmsg|
-    context "when `#{errmsg}` is happened" do
-      before do
-        allow_any_instance_of(Mysql2::Error).to receive(:message).and_return(errmsg)
-      end
-
-      specify do
-        th = thread_start {
-          emp = Employee.create(
-            :emp_no => 9999,
-            :birth_date => Time.now,
-            # wait 10 sec
-            :first_name => "' + sleep(10) + '",
-            :last_name => 'Tiger',
-            :hire_date => Time.now
-          )
-
-          expect(emp.id).to eq 1001
-          expect(emp.emp_no).to eq 9999
-        }
-
-        MysqlServer.restart
-        th.join
-      end
-    end
+    # context "when `#{errmsg}` is happened" do
+    #   before do
+    #     allow_any_instance_of(Mysql2::Error).to receive(:message).and_return(errmsg)
+    #   end
+    #
+    #   specify do
+    #     th = thread_start {
+    #       emp = Employee.create(
+    #         :emp_no => 9999,
+    #         :birth_date => Time.now,
+    #         # wait 10 sec
+    #         :first_name => "' + sleep(10) + '",
+    #         :last_name => 'Tiger',
+    #         :hire_date => Time.now
+    #       )
+    #
+    #       expect(emp.id).to eq 1001
+    #       expect(emp.emp_no).to eq 9999
+    #     }
+    #
+    #     MysqlServer.restart
+    #     th.join
+    #   end
+    # end
   end
 
   context 'when unexpected error is happened' do
@@ -457,7 +457,7 @@ describe 'activerecord-mysql-reconnect' do
       allow_any_instance_of(mysql_error).to receive(:message).and_return('Lost connection to MySQL server during query')
     end
 
-    xcontext "when retry failed " do
+    context "when retry failed " do
       specify do
         if ActiveRecord::VERSION::MAJOR < 6
           expect(ActiveRecord::Base.logger).to receive(:warn).with(warning_template % [
@@ -492,25 +492,26 @@ describe 'activerecord-mysql-reconnect' do
       end
     end
 
-    xcontext "when retry succeeded" do
-      specify do
-        if ActiveRecord::VERSION::MAJOR < 6
-          expect(ActiveRecord::Base.logger).to receive(:warn).with(warning_template % [
-            "MySQL server has gone away. Trying to reconnect in 0.5 seconds.",
-            "#{mysql_error}: Lost connection to MySQL server during query: SELECT `employees`.* FROM `employees` [ActiveRecord::StatementInvalid]",
-          ])
-        else
-          expect(ActiveRecord::Base.logger).to receive(:warn).with(warning_template % [
-            "MySQL server has gone away. Trying to reconnect in 0.5 seconds.",
-            "#{mysql_error}: Lost connection to MySQL server during query [ActiveRecord::StatementInvalid]",
-          ])
-        end
+    # context "when retry succeeded" do
+    #   specify do
+    #     if ActiveRecord::VERSION::MAJOR < 6
+    #       expect(ActiveRecord::Base.logger).to receive(:warn).with(warning_template % [
+    #         "MySQL server has gone away. Trying to reconnect in 0.5 seconds.",
+    #         "#{mysql_error}: Lost connection to MySQL server during query: SELECT `employees`.* FROM `employees` [ActiveRecord::StatementInvalid]",
+    #       ])
+    #     else
+    #       expect(ActiveRecord::Base.logger).to receive(:warn).with(warning_template % [
+    #         "MySQL server has gone away. Trying to reconnect in 0.5 seconds.",
+    #         "#{mysql_error}: Lost connection to MySQL server during query [ActiveRecord::StatementInvalid]",
+    #       ])
+    #     end
+    #
+    #     expect(Employee.all.length).to eq 1000
+    #     MysqlServer.restart
+    #     expect(Employee.all.length).to eq 1000
+    #   end
+    # end
 
-        expect(Employee.all.length).to eq 1000
-        MysqlServer.restart
-        expect(Employee.all.length).to eq 1000
-      end
-    end
   end
 
   # NOTE: The following test need to execute at the last
